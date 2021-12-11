@@ -22,6 +22,6 @@ public interface ListUserApiService {
                     .create(gson))
             .build().create(ListUserApiService.class);
     @Headers("app-id: 619c85e96db4c337a49c8013")
-    @GET("data/v1/user")
+    @GET("data/v1/user?limit=10")
     Call<ListUsers> getListUser();
 }

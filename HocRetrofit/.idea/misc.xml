@@ -4,8 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/HocAndroid/HocTinCoder/HocRetrofit/app/src/main/res/layout/activity_list_user.xml" value="0.23229166666666667" />
+        <entry key="..\:/HocAndroid/HocTinCoder/HocRetrofit/app/src/main/res/layout/activity_main.xml" value="0.23229166666666667" />
         <entry key="..\:/HocAndroid/HocTinCoder/HocRetrofit/app/src/main/res/layout/activity_user_details.xml" value="0.23229166666666667" />
         <entry key="..\:/HocAndroid/HocTinCoder/HocRetrofit/app/src/main/res/layout/custom_item_list_user.xml" value="0.23229166666666667" />
+        <entry key="..\:/HocAndroid/HocTinCoder/HocRetrofit/app/src/main/res/layout/custom_loading.xml" value="0.23229166666666667" />
         <entry key="app/src/main/res/layout/activity_list_user.xml" value="0.23802083333333332" />
         <entry key="app/src/main/res/layout/activity_list_users.xml" value="0.23802083333333332" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
