@@ -12,6 +12,10 @@ public class User {
     String phone;
     Location location;
 
+    public User(String id) {
+        this.id = id;
+    }
+
     public User(String id, String title, String firstName, String lastName, String picture, String gender, String email, String dateOfBirth, String phone, Location location) {
         this.id = id;
         this.title = title;

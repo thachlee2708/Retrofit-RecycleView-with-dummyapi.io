@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.hocretrofit.API.ListUserApiService;
+import com.example.hocretrofit.API.ListUserApiServicePage;
 import com.example.hocretrofit.adapter.UserAdapter;
 import com.example.hocretrofit.item_on_click.ItemOnClick;
 import com.example.hocretrofit.model.ListUsers;
@@ -29,6 +30,12 @@ public class ListUser extends AppCompatActivity implements SwipeRefreshLayout.On
     RecyclerView rcv_user;
     SwipeRefreshLayout swipeRefreshLayout;
     ArrayList<User>users=new ArrayList<>();
+
+    private boolean isLoading;
+    private boolean isLastPage;
+    private int totalPage=5;
+    private int currentPage=1;
+    ArrayList<User> list = new ArrayList<>();
     UserAdapter adapter=new UserAdapter(ListUser.this, new ItemOnClick() {
         @Override
         public void onClickItemListener(User user) {
@@ -55,46 +62,91 @@ public class ListUser extends AppCompatActivity implements SwipeRefreshLayout.On
         swipeRefreshLayout =findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        ProgressDialog dialog=new ProgressDialog(ListUser.this);
-        dialog.setMessage("Loading...");
-        dialog.show();
+
         rcv_user=findViewById(R.id.rcv_user);
         RecyclerView.ItemDecoration itemDecoration=new DividerItemDecoration(this,DividerItemDecoration.VERTICAL);
         rcv_user.addItemDecoration(itemDecoration);
 
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this);
         rcv_user.setLayoutManager(linearLayoutManager);
-        ListUserApiService.LIST_USER_API_SERVICE.getListUser().enqueue(new Callback<ListUsers>() {
+        rcv_user.setAdapter(adapter);
+
+        setFirstData();
+        rcv_user.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
             @Override
-            public void onResponse(Call<ListUsers> call, Response<ListUsers> response) {
-                users=response.body().getData();
-                adapter.setData(users);
-                rcv_user.setAdapter(adapter);
-                dialog.dismiss();
+            public void loadMoreItems() {
+                isLoading=true;
+                currentPage+=1;
+                loadNextPage();
             }
+
             @Override
-            public void onFailure(Call<ListUsers> call, Throwable t) {
-                Toast.makeText( ListUser.this, "LOI",Toast.LENGTH_LONG).show();
-                dialog.dismiss();
+            public boolean isLoading() {
+                return isLoading;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
             }
         });
     }
 
     @Override
     public void onRefresh() {
-        ListUserApiService.LIST_USER_API_SERVICE.getListUser().enqueue(new Callback<ListUsers>() {
+        currentPage=1;
+        adapter.setData(null);
+        users.clear();
+        list.clear();
+        swipeRefreshLayout.setRefreshing(false);
+        setFirstData();
+    }
+    private void loadNextPage() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<User>list=getListUser();
+                adapter.removeFooterLoding();
+                users.addAll(list);
+                adapter.notifyDataSetChanged();
+                isLoading=false;
+                if (currentPage<totalPage)
+                {
+                    adapter.addFooterLoading();
+                }
+                else {
+                    isLastPage=true;
+                }
+            }
+        },2000);
+
+    }
+    //Load data page 0
+    private void setFirstData(){
+        users=getListUser();
+        adapter.getData(users);
+        if (currentPage<totalPage)
+        {
+            adapter.addFooterLoading();
+        }
+        else {
+            isLastPage=true;
+        }
+    }
+    private ArrayList<User>getListUser(){
+
+        ListUserApiServicePage.LIST_USER_API_SERVICE_PAGE.getListUser((currentPage-1)+"").enqueue(new Callback<ListUsers>() {
             @Override
             public void onResponse(Call<ListUsers> call, Response<ListUsers> response) {
-                users=response.body().getData();
-                adapter.setData(users);
-                rcv_user.setAdapter(adapter);
-                swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText( ListUser.this, "Refresh successfully",Toast.LENGTH_LONG).show();
+                list =response.body().getData();
+
             }
             @Override
             public void onFailure(Call<ListUsers> call, Throwable t) {
                 Toast.makeText( ListUser.this, "LOI",Toast.LENGTH_LONG).show();
+
             }
         });
+        return list;
     }
 }

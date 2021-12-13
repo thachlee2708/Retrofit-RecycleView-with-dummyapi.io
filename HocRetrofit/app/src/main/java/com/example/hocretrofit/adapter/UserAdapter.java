@@ -37,6 +37,25 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     ArrayList<User> list;
     ItemOnClick itemOnClick;
 
+
+    private static final int TYPE_ITEM=1;
+    private static final int TYPE_LOADING=2;
+    private boolean isLoadingAdd;
+
+    @Override
+    public int getItemViewType(int position) {
+        if (list!=null&&position==list.size()-1&&isLoadingAdd){
+            return TYPE_LOADING;
+        }
+        return TYPE_ITEM;
+    }
+    public void getData(ArrayList<User> list){
+        this.list=list;
+        notifyDataSetChanged();
+    }
+    public UserAdapter(Context context) {
+        this.context = context;
+    }
     public UserAdapter(Context context, ItemOnClick itemOnClick) {
         this.context = context;
         this.itemOnClick=itemOnClick;
@@ -56,17 +75,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_item_list_user,parent ,false);
-        return new UserViewHolder(view);
+        if (viewType==TYPE_ITEM){
+            View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_item_list_user,parent ,false);
+            return new UserViewHolder(view);
+        }
+        else {
+            View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.custom_loading,parent,false);
+            return new UserViewHolder(view);
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user=list.get(position);
-        if (user==null)
-        {
-        }
-        else
+        if (holder.getItemViewType()==TYPE_ITEM)
         {
             Glide.with(context).load(user.getPicture()).into(holder.imgAva);
             holder.txtUserName.setText(user.getFirstName());
@@ -83,7 +105,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return list.size();
     }
 
-    class UserViewHolder extends RecyclerView.ViewHolder {
+    public class UserViewHolder extends RecyclerView.ViewHolder {
         LinearLayout linearLayout;
         ImageView imgAva;
         TextView txtUserName;
@@ -92,6 +114,26 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             imgAva=itemView.findViewById(R.id.img_ava);
             txtUserName=itemView.findViewById(R.id.txt_user_name);
             linearLayout=itemView.findViewById(R.id.layout_item);
+        }
+    }
+    public class LoadingViewHolder extends RecyclerView.ViewHolder{
+        ProgressBar progressBar;
+        public LoadingViewHolder(@NonNull View itemView) {
+            super(itemView);
+            progressBar=itemView.findViewById(R.id.progress_circular);
+        }
+    }
+    public void addFooterLoading(){
+        isLoadingAdd=true;
+        list.add(new User(""));
+    }
+    public void removeFooterLoding(){
+        isLoadingAdd=false;
+        int position=list.size()-1;
+        User user=list.get(position);
+        if (user!=null){
+            list.remove(position);
+            notifyItemRemoved(position);
         }
     }
 }
